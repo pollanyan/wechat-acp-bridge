@@ -3,3 +3,6 @@ dist/
 logs/
 .wechat-acp-bridge/
 *.log
+*.tgz
+*.tar.gz
+coverage/
