@@ -2,8 +2,16 @@ import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { settings } from './settings.js';
 
-/** Runtime data directory: ~/.<name>/run */
-export const RUN_DIR = join(homedir(), `.${safeSegment(settings.name)}`, 'run');
+/** 从 package name 提取文件系统安全名称：@scope/name → name */
+export function toFsName(pkgName: string): string {
+  const match = pkgName.match(/^@[^/]+\/(.+)$/);
+  return match ? match[1] : pkgName;
+}
+
+const APP_DIR = toFsName(settings.name);
+
+/** Runtime data directory: ~/.<app-dir>/run */
+export const RUN_DIR = join(homedir(), `.${safeSegment(APP_DIR)}`, 'run');
 
 /** 将用户输入转义为安全的文件系统路径段。空字符串返回 '_' 防止路径折叠。 */
 export function safeSegment(value: string): string {

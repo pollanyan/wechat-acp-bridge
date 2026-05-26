@@ -5,12 +5,12 @@ import { join } from 'node:path';
 import { homedir } from 'node:os';
 import { ServiceManager, ServiceStatusResult, ServiceError } from './types.js';
 import { settings } from '../util/settings.js';
-import { RUN_DIR } from '../util/paths.js';
+import { RUN_DIR, toFsName } from '../util/paths.js';
 import logger from '../util/logger.js';
 
 const execAsync = promisify(exec);
 
-const LABEL = settings.name;
+const LABEL = toFsName(settings.name);
 const PLIST_PATH = join(homedir(), 'Library', 'LaunchAgents', `${LABEL}.plist`);
 
 export class LaunchdServiceManager implements ServiceManager {
