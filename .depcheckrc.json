@@ -1,0 +1,14 @@
+{
+  "ignores": [
+    "@commitlint/cli",
+    "@commitlint/config-conventional",
+    "@typescript-eslint/eslint-plugin",
+    "@typescript-eslint/parser",
+    "eslint-plugin-prettier"
+  ],
+  "ignore-patterns": [
+    "dist",
+    "coverage",
+    "node_modules"
+  ]
+}

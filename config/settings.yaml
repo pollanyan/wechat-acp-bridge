@@ -1,0 +1,8 @@
+# WeChat ACP Bridge — 全局设置
+# name / version 以 package.json 为唯一来源，此处不覆盖
+displayName: WeChat ACP Bridge
+# 发送消息时使用的 client_id 前缀，默认同 package.json 中的 name
+# clientIdPrefix: wechat-acp-bridge
+Agent:
+  # Session 超时时间（分钟），超过后自动创建新会话。默认 30 分钟。
+  session_timeout: 30

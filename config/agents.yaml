@@ -1,0 +1,28 @@
+Hermes Agent:
+  command: "hermes"
+  args: ["acp"]
+  env: {}
+  short: HA
+  logo: "☤"
+  description: "The self-improving AI agent built by Nous Research."
+OpenClaw:
+  command: "openclaw"
+  args: ["acp"]
+  env: {}
+  short: CL
+  logo: "🦞"
+  description: "The open-source AI agent built by OpenClaw Team."
+OpenCode:
+  command: "opencode"
+  args: ["acp"]
+  env: {}
+  short: OC
+  logo: "▯"
+  description: "OpenCode 是一个开源的 AI 编码代理。它提供终端界面、桌面应用和 IDE 扩展等多种使用方式。"
+Claude Code:
+  command: "npx"
+  args: ["@agentclientprotocol/claude-agent-acp"]
+  env: {}
+  short: CC
+  logo: "✳️"
+  description: "OpenCode 是一个开源的 AI 编码代理。它提供终端界面、桌面应用和 IDE 扩展等多种使用方式。"

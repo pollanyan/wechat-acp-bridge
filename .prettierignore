@@ -1,0 +1,7 @@
+node_modules/
+dist/
+logs/
+.wechat-acp-bridge/
+*.log
+package-lock.json
+coverage/
