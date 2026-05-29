@@ -6,47 +6,88 @@
   "author": "pollanyan",
   "type": "module",
   "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "sideEffects": false,
   "bin": {
     "wechat-acp-bridge": "dist/cli/commands.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./cli": "./dist/cli/commands.js"
   },
   "files": [
     "dist/**/*.js",
     "config"
   ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "typecheck:force": "tsc  --build --force --noEmit",
+    "typecheck:force": "tsc --build --force --noEmit",
     "format": "prettier --check 'src/**/*.{ts,mts,cts,json,md}'",
     "format:fix": "prettier --write 'src/**/*.{ts,mts,cts,json,md}'",
-    "lint": "eslint src/",
-    "lint:fix": "eslint --fix src/",
-    "check:baseall": "npm run typecheck && npm run format && npm run lint ",
-    "check:fix": "npm run format:fix && npm run lint:fix ",
+    "lint": "eslint src/ --cache",
+    "lint:fix": "eslint --fix src/ --cache",
+    "check:basic": "npm run format && npm run lint && npm run typecheck",
+    "check:fix": "npm run format:fix && npm run lint:fix",
     "check:jscpd": "jscpd src/",
     "check:depdupes": "node -e \"const d=require('./package.json').dependencies||{};const p=require('./package.json').devDependencies||{};const dup=Object.keys(d).filter(k=>k in p);if(dup.length){console.error('包同时存在于 dependencies 和 devDependencies:',dup.join(', '));process.exit(1)}else console.log('无重复包引入')\"",
     "check:depcheck": "depcheck",
     "check:audit": "npm audit --audit-level=high",
     "check:extall": "npm run check:jscpd && npm run check:depdupes && npm run check:depcheck && npm run check:audit",
-    "check:all": "npm run check:baseall && npm run check:extall",
+    "check:all": "npm run check:basic && npm run check:extall",
     "test:dev": "vitest --watch",
-    "test": "vitest run --coverage",
-    "clean": "rm -rf dist",
-    "build": "tsc && chmod +x dist/cli/commands.js",
+    "test": "vitest run --coverage --passWithNoTests",
+    "clean": "rimraf dist",
+    "build": "tsc",
     "build:clean": "npm run clean && npm run build",
-    "run-dev": "ts-node src/cli/commands.ts run",
+    "run-dev": "tsx src/cli/commands.ts run",
     "run": "node dist/cli/commands.js run",
     "service:install": "node dist/cli/commands.js install",
     "service:uninstall": "node dist/cli/commands.js uninstall",
-    "prepare": "npx simple-git-hooks || true",
-    "prepack": "npm run check:all && npm run test && npm run build:clean"
+    "prepare": "simple-git-hooks",
+    "prepack": "npm run build:clean",
+    "prepublishOnly": "npm run check:all && npm run test"
   },
   "engines": {
     "node": ">=22"
   },
   "simple-git-hooks": {
-    "pre-commit": "npm run check:all && npm run test",
+    "pre-commit": "npx lint-staged",
     "commit-msg": "npx commitlint --edit $1"
   },
+  "lint-staged": {
+    "*.{ts,mts,cts}": [
+      "eslint . --cache --fix",
+      "prettier --write",
+      "npm run test -- --findRelatedTests"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pollanyan/wechat-acp-bridge.git"
+  },
+  "bugs": {
+    "url": "https://github.com/pollanyan/wechat-acp-bridge/issues"
+  },
+  "homepage": "https://github.com/pollanyan/wechat-acp-bridge#readme",
+  "keywords": [
+    "wechat",
+    "acp",
+    "bridge",
+    "agent",
+    "openclaw",
+    "hermes"
+  ],
   "dependencies": {
     "@agentclientprotocol/sdk": "^0.21.1",
     "axios": "^1.16.1",
@@ -64,12 +105,10 @@
     "@eslint/js": "^10.0.1",
     "@eslint/json": "^1.2.0",
     "@eslint/markdown": "^8.0.1",
-    "@types/inquirer": "^9.0.9",
-    "@types/node": "^25.8.0",
+    "@types/node": "^25.9.1",
     "@types/qrcode-terminal": "^0.12.2",
-    "@types/winston": "^2.4.4",
-    "@typescript-eslint/eslint-plugin": "^8.59.4",
-    "@typescript-eslint/parser": "^8.59.4",
+    "@typescript-eslint/eslint-plugin": "^8.60.0",
+    "@typescript-eslint/parser": "^8.60.0",
     "@vitest/coverage-v8": "^4.1.7",
     "depcheck": "^1.4.7",
     "eslint": "^10.4.0",
@@ -78,11 +117,13 @@
     "globals": "^17.6.0",
     "jiti": "^2.7.0",
     "jscpd": "^4.2.3",
+    "lint-staged": "^17.0.5",
     "prettier": "^3.8.3",
+    "rimraf": "^6.1.3",
     "simple-git-hooks": "^2.13.1",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.22.3",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.59.4",
+    "typescript-eslint": "^8.60.0",
     "vitest": "^4.1.7"
   }
 }
