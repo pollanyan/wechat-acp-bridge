@@ -7,3 +7,10 @@ logs/
 *.tgz
 *.tar.gz
 coverage/
+
+# Claude Code - per-machine / local state
+.claude/settings.local.json
+.claude/projects/
+.claude/session-backups/
+.claude/logs/
+.claude/cache/
