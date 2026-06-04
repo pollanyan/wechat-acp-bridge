@@ -1,13 +1,13 @@
-# 1. WeChat ACP Bridge
+**WeChat ACP Bridge**
 
 微信 ACP 桥接器 — 让微信与 ACP 兼容的 AI Agent 无缝对话。
 支持 OpenClaw、Hermes、OpenCode、Claude Code 等 Agent，支持多微信账号。
 
-## 1.1. 缘起
+# 1. 缘起
 
 从 OpenClaw 到 Hermes Agent，他们都原生支持微信了，但你不能在同一个账号上双开。HermesClaw 就是为了解决这个问题的，但折腾一番后，反复遇到通信异常。索性让 DeepSeek 重写一个初始版本，又因DeepSeek网页版不便，转而用 Claude Code 接入 DeepSeek 进行迭代，最终有了 WeChat-ACP-Bridge。
 
-## 1.2. 功能特性
+# 2. 功能特性
 
 - **多 Agent 支持** — 通过 ACP 协议对接 OpenClaw、Hermes、OpenCode、Claude Code 等 AI Agent
 - **多账号并行** — 支持多个微信账号同时访问，每账号独立选择后端 Agent
@@ -17,11 +17,11 @@
 - **系统服务** — 支持 systemd（Linux）和 launchd（macOS）作为后台服务运行
 - **配置驱动** — Agent、超时、显示名称等均通过 YAML 配置，无需修改代码
 
-## 1.3. 快速开始
+# 3. 快速开始
 
 ```bash
 # 1. 安装
-npm install -g @pollanyan/wechat-acp-bridge 
+npm install -g @pollanyan/wechat-acp-bridge
 
 # 2. 扫码登录微信
 wechat-acp-bridge login
@@ -34,15 +34,15 @@ wechat-acp-bridge run
 
 在微信中发送消息，Agent 将自动回复。发送 `/h` 查看微信端可用命令。
 
-## 1.4. 安装
+# 4. 安装
 
-### 1.4.1. 全局安装（推荐）
+## 4.1. 全局安装（推荐）
 
 ```bash
 npm install -g wechat-acp-bridge
 ```
 
-### 1.4.2. 从源码安装
+## 4.2. 从源码安装
 
 ```bash
 git clone <repo-url>
@@ -52,7 +52,7 @@ npm run build
 npm link
 ```
 
-### 1.4.3. 安装为系统服务(用户级)
+## 4.3. 安装为系统服务(用户级)
 
 ```bash
 # Linux (systemd)/macOS (launchd)
@@ -60,16 +60,16 @@ wechat-acp-bridge install
 wechat-acp-bridge start
 ```
 
-## 1.5. 使用指南
+# 5. 使用指南
 
-### 1.5.1. CLI 命令
+## 5.1. CLI 命令
 
 | 命令                 | 说明                                       |
 | -------------------- | ------------------------------------------ |
 | `login [alias]`      | 扫码登录微信账号，`alias` 默认为 `default` |
 | `login -f`           | 强制重新扫码（已有凭证时跳过确认）         |
 | `run`                | 前台运行桥接服务                           |
-| `install`            | 安装为系统服务(用户级)                             |
+| `install`            | 安装为系统服务(用户级)                     |
 | `uninstall`          | 卸载系统服务                               |
 | `start`              | 启动后台服务（systemd/launchd）            |
 | `stop`               | 停止后台服务                               |
@@ -83,7 +83,7 @@ wechat-acp-bridge start
 | `logs -l DEBUG`      | 设置日志级别（DEBUG/INFO/WARNING/ERROR）   |
 | `logs -f`            | 实时跟随日志文件（类似 `tail -f`）         |
 
-### 1.5.2. 微信端命令
+## 5.2. 微信端命令
 
 在微信聊天中直接发送以下命令：
 
@@ -98,7 +98,7 @@ wechat-acp-bridge start
 
 直接发送文本即可与当前 Agent 对话。
 
-### 1.5.3. 多账号使用
+## 5.3. 多账号使用
 
 ```bash
 # 登录多个微信账号
@@ -114,9 +114,9 @@ wechat-acp-bridge activate zhangsan    # 重新激活账号
 
 ```
 
-## 1.6. 功能结构与说明
+# 6. 功能结构与说明
 
-### 1.6.1. 系统分层
+## 6.1. 系统分层
 
 | 层级                 | 组件                                                                                             |
 | -------------------- | ------------------------------------------------------------------------------------------------ |
@@ -125,7 +125,7 @@ wechat-acp-bridge activate zhangsan    # 重新激活账号
 | **核心模块**         | WXAPI（微信 API 封装） / MessageRouter（消息路由·Session） / AcpBridgeClient（ACP NDJSON stdio） |
 | **Storage 持久化层** | 凭证 · 激活列表 · 账号状态 · Session 元数据 · 日志                                               |
 
-### 1.6.2. 核心组件
+## 6.2. 核心组件
 
 **WeChatACPBridge** (`src/index.ts`) — 主控循环
 
@@ -153,7 +153,7 @@ wechat-acp-bridge activate zhangsan    # 重新激活账号
 - `sessionUpdate` 累积 `agent_message_chunk` 文本块
 - `requestPermission` 自动授权（优先 `allow_once`）
 
-### 1.6.3. 数据持久化
+## 6.3. 数据持久化
 
 ```
 ~/.wechat-acp-bridge/run/
@@ -166,9 +166,9 @@ wechat-acp-bridge activate zhangsan    # 重新激活账号
 └── sessions/<alias>/<agent>/<uuid>.json  # 每条 session 独立元数据
 ```
 
-## 1.7. 消息流程
+# 7. 消息流程
 
-### 1.7.1. 普通文本消息
+## 7.1. 普通文本消息
 
 ```
 微信客户端 ──"你好"──▶ 微信服务器
@@ -193,7 +193,7 @@ wechat-acp-bridge activate zhangsan    # 重新激活账号
         sendText(reply) ──▶ 微信服务器 ──▶ 微信客户端
 ```
 
-### 1.7.2. 命令处理流程
+## 7.2. 命令处理流程
 
 ```
 微信客户端 ──"/cl"──▶ MessageRouter.routeMessage()
@@ -206,7 +206,7 @@ wechat-acp-bridge activate zhangsan    # 重新激活账号
                       └─ 返回 "✅ 已切换后端为 OpenClaw，当前 session: xxxxxxxx"
 ```
 
-### 1.7.3. /session 短 ID 匹配
+## 7.3. /session 短 ID 匹配
 
 ```
 /session a1b2c3d4
@@ -219,9 +219,9 @@ wechat-acp-bridge activate zhangsan    # 重新激活账号
   └─ /session latest → 切换到最近活跃 session
 ```
 
-## 1.8. 配置
+# 8. 配置
 
-### 1.8.1. Agent 配置 (`config/agents.yaml`)
+## 8.1. Agent 配置 (`config/agents.yaml`)
 
 **可添加任意多个 Agent，command、args 为必填**
 
@@ -239,7 +239,7 @@ Claude Agent:
   logo: '✳️'
 ```
 
-### 1.8.2. 全局设置 (`config/settings.yaml`)
+## 8.2. 全局设置 (`config/settings.yaml`)
 
 ```yaml
 displayName: WeChat ACP Bridge
@@ -247,15 +247,15 @@ Agent:
   session_timeout: 30 # Session 超时（分钟），默认 30
 ```
 
-## 1.9. 贡献
+# 9. 贡献
 
 欢迎贡献！请在GitHub]上提交 issue 或 PR。
 
-### 1.9.1. 设计文档
+## 9.1. 设计文档
 
 请参考[设计文档](./DESIGN.md)。
 
-### 1.9.2. 项目结构
+## 9.2. 项目结构
 
 ```
 src/
@@ -289,7 +289,7 @@ config/
 └── settings.yaml         # 全局设置文件
 ```
 
-## 1.10. 技术栈
+# 10. 技术栈
 
 | 类别       | 技术                     | 版本       | 用途                 |
 | ---------- | ------------------------ | ---------- | -------------------- |
@@ -307,7 +307,7 @@ config/
 | 代码规范   | ESLint + Prettier        | ^10 / ^3.8 | 代码格式与检查       |
 | 提交规范   | commitlint               | ^21.0      | Conventional Commits |
 
-## 1.11. 鸣谢
+# 11. 鸣谢
 
 - [HermesClaw](https://github.com/AaronWong1999/hermesclaw) — 在同一个微信账号上同时多开 Hermes Agent、OpenClaw 和 OpenCode。
 - [openclaw-weixin](https://github.com/Tencent/openclaw-weixin) — OpenClaw 的微信渠道插件，支持通过扫码完成登录授权。
@@ -316,10 +316,10 @@ config/
 - [
   Agent Client Protocol (ACP)](https://github.com/agentclientprotocol)
 
-## 1.12. 其他
+# 12. 其他
 
 如果OpenClaw/Hermes Agent等已启用了微信通道，在使用相同的微信账号扫码本程序登录二维码，原Agent微信通道将失效，因为同一个账号不能双开。此时，最好禁用原Agent微信通道。
 
-## 1.13. License
+# 13. License
 
-MIT 许可证 - 详见 [LICENSE](https://github.com/rtk-ai/rtk/blob/develop/LICENSE)。
+MIT 许可证 - 详见 [MIT LICENSE](https://opensource.org/license/mit)。

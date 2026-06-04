@@ -1,18 +1,18 @@
-# WeChat ACP Bridge 设计文档
+**WeChat ACP Bridge 设计文档**
 
-## 1. 设计思路
+# 1. 设计思路
 
-**核心问题**
+## 1.1. 核心问题
 
 现在 Hermes 和 OpenClaw 都原生支持微信了——但你不能在同一个账号上双开。 每个 Gateway 会独占 iLink 连接。
 
 微信用户无法直接与 ACP（Agent Client Protocol）兼容的 AI Agent（OpenClaw、Hermes、OpenCode、Claude Code 等）对话。
 
-**解决方案**
+## 1.2. 解决方案
 
 构建一个桥接服务，作为微信 iLink Bot API 与 ACP 协议之间的翻译层，将微信消息转发给 Agent，将 Agent 回复发回微信。
 
-**设计原则**：
+## 1.3. 设计原则
 
 - **协议适配，而非耦合**：微信侧和 Agent 侧各自独立封装，桥接层仅做消息路由和格式转换
 - **多账号多 Agent**：支持多个微信账号并行运行，每个账号可独立选择后端 Agent
@@ -22,7 +22,7 @@
 
 ---
 
-## 2. 总体架构
+# 2. 总体架构
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
@@ -52,17 +52,17 @@
 
 **三层结构**：
 
-| 层 | 职责 |
-|---|------|
-| **接入层** (`src/weixin/`) | 微信 iLink Bot API 客户端：扫码登录、长轮询收消息、发送文本、输入状态 |
-| **桥接层** (`src/bridge/`, `src/index.ts`) | 消息路由、Session 管理、多账号轮询编排 |
-| **Agent 层** (`src/acp/`) | ACP 协议客户端：spawn Agent 子进程、NDJSON 通信、prompt 转发 |
+| 层                                         | 职责                                                                  |
+| ------------------------------------------ | --------------------------------------------------------------------- |
+| **接入层** (`src/weixin/`)                 | 微信 iLink Bot API 客户端：扫码登录、长轮询收消息、发送文本、输入状态 |
+| **桥接层** (`src/bridge/`, `src/index.ts`) | 消息路由、Session 管理、多账号轮询编排                                |
+| **Agent 层** (`src/acp/`)                  | ACP 协议客户端：spawn Agent 子进程、NDJSON 通信、prompt 转发          |
 
 ---
 
-## 3. 逻辑架构
+# 3. 逻辑架构
 
-### 3.1 模块依赖图
+## 3.1. 模块依赖图
 
 ```
 CLI (commands.ts)
@@ -80,7 +80,7 @@ CLI (commands.ts)
   └── service/manager.ts             ← 系统服务管理
 ```
 
-### 3.2 数据模型
+## 3.2. 数据模型
 
 ```
 AccountState                    SessionMeta
@@ -94,7 +94,7 @@ AccountState                    SessionMeta
                                 └─ lastActive: number
 ```
 
-### 3.3 持久化目录结构
+## 3.3. 持久化目录结构
 
 ```
 ~/.wechat-acp-bridge/run/
@@ -116,36 +116,36 @@ AccountState                    SessionMeta
 
 ---
 
-## 4. 功能结构与说明
+# 4. 功能结构与说明
 
-### 4.1 CLI 命令
+## 4.1. CLI 命令
 
-| 命令 | 说明 |
-|------|------|
-| `login [alias]` | 扫码登录微信，自动激活账号 |
-| `run` | 前台运行桥接服务进程 |
-| `start` / `stop` / `restart` | 后台服务生命周期管理（systemd/launchd） |
-| `install` / `uninstall` | 安装/卸载系统服务(用户级) |
-| `activate <alias>` / `deactivate <alias>` | 激活/去激活账号（热加载，实时生效） |
-| `list` | 列出所有已保存账号及其状态 |
-| `logout <alias>` | 删除凭证并去激活 |
-| `status [alias]` | 查看账号、Agent、Session 及进程运行状态 |
-| `logs [-l level] [-f]` | 查看/设置日志级别，实时跟随日志 |
+| 命令                                      | 说明                                    |
+| ----------------------------------------- | --------------------------------------- |
+| `login [alias]`                           | 扫码登录微信，自动激活账号              |
+| `run`                                     | 前台运行桥接服务进程                    |
+| `start` / `stop` / `restart`              | 后台服务生命周期管理（systemd/launchd） |
+| `install` / `uninstall`                   | 安装/卸载系统服务(用户级)               |
+| `activate <alias>` / `deactivate <alias>` | 激活/去激活账号（热加载，实时生效）     |
+| `list`                                    | 列出所有已保存账号及其状态              |
+| `logout <alias>`                          | 删除凭证并去激活                        |
+| `status [alias]`                          | 查看账号、Agent、Session 及进程运行状态 |
+| `logs [-l level] [-f]`                    | 查看/设置日志级别，实时跟随日志         |
 
-### 4.2 微信端命令（在聊天中发送）
+## 4.2. 微信端命令（在聊天中发送）
 
-| 命令 | 说明 |
-|------|------|
-| `/h` | 显示帮助信息 |
-| `/new` | 创建新会话（重置上下文） |
-| `/sessions` | 列出历史会话 |
-| `/session <id>` | 切换到指定会话（支持短 ID 前缀匹配） |
-| `/session latest` | 切换到最近活跃的会话 |
-| `/<short>` | 切换到指定 Agent（如 `/cl`→OpenClaw, `/ha`→Hermes） |
+| 命令              | 说明                                                |
+| ----------------- | --------------------------------------------------- |
+| `/h`              | 显示帮助信息                                        |
+| `/new`            | 创建新会话（重置上下文）                            |
+| `/sessions`       | 列出历史会话                                        |
+| `/session <id>`   | 切换到指定会话（支持短 ID 前缀匹配）                |
+| `/session latest` | 切换到最近活跃的会话                                |
+| `/<short>`        | 切换到指定 Agent（如 `/cl`→OpenClaw, `/ha`→Hermes） |
 
-### 4.3 核心组件
+## 4.3. 核心组件
 
-#### WeChatACPBridge (`src/index.ts`)
+### 4.3.1. WeChatACPBridge (`src/index.ts`)
 
 主控循环，采用 **supervisorLoop 模式**：
 
@@ -154,7 +154,7 @@ AccountState                    SessionMeta
 3. 每个账号独立 IIFE 长轮询，去激活时自行退出
 4. 信号处理（SIGTERM/SIGINT）优雅关闭
 
-#### WXAPI (`src/weixin/api.ts`)
+### 4.3.2. WXAPI (`src/weixin/api.ts`)
 
 微信 iLink Bot HTTP API 封装：
 
@@ -163,7 +163,7 @@ AccountState                    SessionMeta
 - **发送文本**：POST `/ilink/bot/sendmessage`，含消息类型、clientId、内容
 - **输入状态**：先 POST `/ilink/bot/getconfig` 获取 typing_ticket（缓存），再 POST `/ilink/bot/sendtyping`
 
-#### MessageRouter (`src/bridge/router.ts`)
+### 4.3.3. MessageRouter (`src/bridge/router.ts`)
 
 消息路由核心：
 
@@ -176,7 +176,7 @@ AccountState                    SessionMeta
 - **Agent 切换**：`/<short>` 切换后端 Agent，同时切换对应 session
 - **活性跟踪**：每次消息更新 `lastActive`，用于超时判断和 `/sessions` 排序
 
-#### AcpBridgeClient (`src/acp/client.ts`)
+### 4.3.4. AcpBridgeClient (`src/acp/client.ts`)
 
 ACP 协议 NDJSON-over-stdio 客户端：
 
@@ -188,16 +188,16 @@ ACP 协议 NDJSON-over-stdio 客户端：
   - `requestPermission`: 自动授权（优先 `allow_once`）
   - `readTextFile` / `writeTextFile`: 文件操作透传
 
-### 4.4 Agent 配置
+## 4.4. Agent 配置
 
 `config/agents.yaml` 定义可用后端 Agent：
 
 ```yaml
 OpenClaw:
-  command: "openclaw"
-  args: ["acp"]
-  short: CL          # 微信端快捷命令 /cl
-  logo: "🦞"         # 微信聊天框Agent消息Logo
+  command: 'openclaw'
+  args: ['acp']
+  short: CL # 微信端快捷命令 /cl
+  logo: '🦞' # 微信聊天框Agent消息Logo
 ```
 
 支持字段：`command`（必需）、`args`、`cwd`、`env`、`short`、`logo`、`description`。
@@ -206,9 +206,9 @@ OpenClaw:
 
 ---
 
-## 5. 消息流程
+# 5. 消息流程
 
-### 5.1 普通文本消息
+## 5.1. 普通文本消息
 
 ```
 微信用户发送 "你好"
@@ -249,7 +249,7 @@ WXAPI.sendTyping(STOP)  ← finally 块保证发送
 WXAPI.sendText(userId, contextToken, reply)  回复发送到微信
 ```
 
-### 5.2 命令流程
+## 5.2. 命令流程
 
 ```
 微信用户发送 "/cl"
@@ -267,7 +267,7 @@ switchAgent(alias, "OpenClaw")
 返回 "✅ 已切换当前账号 ... 的后端为 OpenClaw，当前 session: xxx"
 ```
 
-### 5.3 多账号并行
+## 5.3. 多账号并行
 
 ```
 supervisorLoop (每 10s)
@@ -286,7 +286,7 @@ IIFE 1 (并行)          IIFE 2 (并行)
 
 账号去激活时，IIFE 检测到 `activeAliases` 中无自身，自动退出并从 `wxapis` Map 移除。
 
-### 5.3 时序图
+## 5.4. 时序图
 
 ```mermaid
 sequenceDiagram
@@ -317,38 +317,44 @@ sequenceDiagram
 
 ---
 
-## 6. 技术栈
+# 6. 技术栈
 
-| 类别 | 技术 | 用途 |
-|------|------|------|
-| **语言** | TypeScript 6.x | ESNext target, NodeNext module |
-| **运行时** | Node.js ≥22 | ESM (`"type": "module"`) |
-| **Agent 协议** | `@agentclientprotocol/sdk` 0.21 | NDJSON-over-stdio 子进程通信 |
-| **HTTP 客户端** | axios 1.x | 微信 iLink Bot API 长轮询 |
-| **CLI 框架** | commander 14.x | 命令行接口 |
-| **日志** | winston 3.x | 文件（JSON）+ 终端（彩色）双输出 |
-| **配置** | yaml 2.x | agents.yaml / settings.yaml 解析 |
-| **校验** | zod 4.x | 所有外部输入、配置、API 响应的 Schema 校验 |
-| **交互** | inquirer 13.x | CLI 登录确认等交互式提示 |
-| **二维码** | qrcode-terminal 0.12 | 终端显示微信扫码登录 |
-| **测试** | vitest 4.x | 单元测试 + 覆盖率 |
-| **代码质量** | ESLint 10, Prettier 3, jscpd, depcheck, commitlint | 代码规范、重复检测、依赖检查、提交规范 |
-| **系统服务** | systemd (Linux) / launchd (macOS) | 后台服务管理 |
-| **版本控制** | simple-git-hooks | pre-commit 检查（typecheck + lint + format + test） |
+## 6.1. 工具列表
 
-### 关键技术决策
+| 类别            | 技术                                               | 用途                                                |
+| --------------- | -------------------------------------------------- | --------------------------------------------------- |
+| **语言**        | TypeScript 6.x                                     | ESNext target, NodeNext module                      |
+| **运行时**      | Node.js ≥22                                        | ESM (`"type": "module"`)                            |
+| **Agent 协议**  | `@agentclientprotocol/sdk` 0.21                    | NDJSON-over-stdio 子进程通信                        |
+| **HTTP 客户端** | axios 1.x                                          | 微信 iLink Bot API 长轮询                           |
+| **CLI 框架**    | commander 14.x                                     | 命令行接口                                          |
+| **日志**        | winston 3.x                                        | 文件（JSON）+ 终端（彩色）双输出                    |
+| **配置**        | yaml 2.x                                           | agents.yaml / settings.yaml 解析                    |
+| **校验**        | zod 4.x                                            | 所有外部输入、配置、API 响应的 Schema 校验          |
+| **交互**        | inquirer 13.x                                      | CLI 登录确认等交互式提示                            |
+| **二维码**      | qrcode-terminal 0.12                               | 终端显示微信扫码登录                                |
+| **测试**        | vitest 4.x                                         | 单元测试 + 覆盖率                                   |
+| **代码质量**    | ESLint 10, Prettier 3, jscpd, depcheck, commitlint | 代码规范、重复检测、依赖检查、提交规范              |
+| **系统服务**    | systemd (Linux) / launchd (macOS)                  | 后台服务管理                                        |
+| **版本控制**    | simple-git-hooks                                   | pre-commit 检查（typecheck + lint + format + test） |
 
-| 决策 | 选择 | 理由 |
-|------|------|------|
-| 模块系统 | ESM (`"type": "module"`) | 拥抱现代标准，避免 CJS/ESM 混用 |
-| Agent 通信 | ACP NDJSON stdio | 无需端口管理，子进程隔离，标准协议 |
-| 长轮询 vs WebSocket | 微信 API 长轮询 | 微信 iLink Bot API 仅支持 HTTP 长轮询 |
-| 多账号 | 独立 IIFE 长轮询 | 并行不互相阻塞，去激活后自行退出 |
-| Session 存储 | JSON 文件 | 无外部依赖，支持跨进程读写 |
-| 凭证编码 | `encodeURIComponent` 文件名 | 避免特殊字符导致的文件系统问题 |
+## 6.2. 关键技术决策
 
-## 6. 路标
-### 6.1 支持图片、语音、视频、文件。所有媒体（图片/语音/视频/文件）通过 CDN 传输，使用 AES-128-ECB 加密。
+| 决策                | 选择                        | 理由                                  |
+| ------------------- | --------------------------- | ------------------------------------- |
+| 模块系统            | ESM (`"type": "module"`)    | 拥抱现代标准，避免 CJS/ESM 混用       |
+| Agent 通信          | ACP NDJSON stdio            | 无需端口管理，子进程隔离，标准协议    |
+| 长轮询 vs WebSocket | 微信 API 长轮询             | 微信 iLink Bot API 仅支持 HTTP 长轮询 |
+| 多账号              | 独立 IIFE 长轮询            | 并行不互相阻塞，去激活后自行退出      |
+| Session 存储        | JSON 文件                   | 无外部依赖，支持跨进程读写            |
+| 凭证编码            | `encodeURIComponent` 文件名 | 避免特殊字符导致的文件系统问题        |
+
+# 7. 路标
+
+## 7.1. 支持图片、语音、视频、文件。所有媒体（图片/语音/视频/文件）通过 CDN 传输，使用 AES-128-ECB 加密。
+
 原生iLink接口支持，后续版本支持
-### 6.2 支持openclaw-weixin插件
+
+## 7.2. 支持openclaw-weixin插件
+
 实现类似OpenClaw或Hermes Agent的gateway,支持openclaw-weixin插件，微信消息收发模块与本工具解耦
