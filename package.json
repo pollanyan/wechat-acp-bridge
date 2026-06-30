@@ -1,6 +1,6 @@
 {
   "name": "@pollanyan/wechat-acp-bridge",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "微信 ACP 桥接器 - 支持微信与OpenClaw、Hermes等Agent之间的通信",
   "license": "MIT",
   "author": "pollanyan",
