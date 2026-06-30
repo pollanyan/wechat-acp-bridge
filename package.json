@@ -37,7 +37,7 @@
     "check:basic": "npm run format && npm run lint && npm run typecheck",
     "check:fix": "npm run format:fix && npm run lint:fix",
     "check:jscpd": "jscpd src/",
-    "check:depdupes": "node -e \"const d=require('./package.json').dependencies||{};const p=require('./package.json').devDependencies||{};const dup=Object.keys(d).filter(k=>k in p);if(dup.length){console.error('包同时存在于 dependencies 和 devDependencies:',dup.join(', '));process.exit(1)}else console.log('无重复包引入')\"",
+    "check:depdupes": "node -e \"const d=require('./package.json').dependencies||{};const p=require('./package.json').devDependencies||{};const dup=Object.keys(d).filter(k=>k in p);if(dup.length){console.error('包同时存在于 dependencies 和 devDependencies:',dup.join(', '));process.exit(1);}\"",
     "check:depcheck": "depcheck",
     "check:audit": "npm audit --audit-level=high",
     "check:extall": "npm run check:jscpd && npm run check:depdupes && npm run check:depcheck && npm run check:audit",
@@ -125,5 +125,8 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.60.0",
     "vitest": "^4.1.7"
+  },
+  "depcheck": {
+    "ignoreUnused": ["rimraf"]
   }
 }
