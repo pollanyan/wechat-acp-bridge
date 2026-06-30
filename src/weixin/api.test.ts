@@ -443,8 +443,8 @@ describe('WXAPI', () => {
       const api = new WXAPI('prefix-test');
       await api.sendText('user1', 'ctx1', 'hello');
       const call = mockAxiosRequest.mock.calls[0][0];
-      // clientIdPrefix defaults to pkg.name
-      expect(call.data.msg.client_id).toMatch(/^@pollanyan\/wechat-acp-bridge-/);
+      // clientIdPrefix defaults to bin name
+      expect(call.data.msg.client_id).toMatch(/^wechat-acp-bridge-/);
     });
 
     it('should fallback to settings.name when clientIdPrefix is empty', async () => {
@@ -458,7 +458,7 @@ describe('WXAPI', () => {
         const api = new WXAPI('fallback-test');
         await api.sendText('user1', 'ctx1', 'hello');
         const call = mockAxiosRequest.mock.calls[0][0];
-        expect(call.data.msg.client_id).toMatch(/^@pollanyan\/wechat-acp-bridge-/);
+        expect(call.data.msg.client_id).toMatch(/^wechat-acp-bridge-/);
       } finally {
         (settingsMod.settings as Record<string, unknown>).clientIdPrefix = orig;
       }

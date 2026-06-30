@@ -173,7 +173,8 @@ export class WeChatACPBridge {
       process.kill(parseInt(pid), 0);
       return true;
     } catch (err: unknown) {
-      if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
+      const code = (err as NodeJS.ErrnoException).code;
+      if (code !== 'ENOENT' && code !== 'ESRCH') {
         logger.warn('读取 PID 文件失败: %s', (err as Error).message);
       }
       return false;

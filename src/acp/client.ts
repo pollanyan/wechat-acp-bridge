@@ -94,6 +94,7 @@ export class AcpBridgeClient extends EventEmitter {
 
   constructor(options: AgentConfig) {
     super();
+    this.on('error', (err) => logger.error('ACP Client error: %O', err));
     this.clientImpl = new AcpClientImpl((msg) => logger.info(`[ACP] ${msg}`));
     this.startPromise = this.startAgent(options).catch((err) => {
       logger.error('启动 Agent 失败: %O', err);
@@ -119,7 +120,7 @@ export class AcpBridgeClient extends EventEmitter {
     });
 
     this.proc.on('error', (err) => {
-      logger.error(`ACP Agent 进程启动失败: ${err.message}`);
+      logger.error(`ACP Agent 进程启动失败 (PATH=${process.env.PATH}): ${err.message}`);
       this.ready = false;
       this.emit('error', err);
     });

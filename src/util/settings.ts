@@ -7,6 +7,7 @@ import { settingsSchema, type Settings } from '../schemas/settings.js';
 interface PackageJson {
   name?: string;
   version?: string;
+  bin?: string | Record<string, string>;
 }
 
 function readPackageJson(): PackageJson {
@@ -18,13 +19,20 @@ function readPackageJson(): PackageJson {
   }
 }
 
+function getBinName(pkg: PackageJson): string {
+  if (!pkg.bin) return 'wechat-acp-bridge';
+  if (typeof pkg.bin === 'string') return pkg.bin.split('/').pop() || 'wechat-acp-bridge';
+  return Object.keys(pkg.bin)[0] || 'wechat-acp-bridge';
+}
+
 const pkg = readPackageJson();
+const binName = getBinName(pkg);
 
 const defaults: Settings = {
-  name: pkg.name || 'wechat-acp-bridge',
+  name: binName,
   version: pkg.version || '0.0.0',
   displayName: 'WeChat ACP Bridge',
-  clientIdPrefix: pkg.name || 'wechat-acp-bridge',
+  clientIdPrefix: binName,
   Agent: { session_timeout: 30 },
 };
 

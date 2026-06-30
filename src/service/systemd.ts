@@ -117,6 +117,7 @@ export class SystemdServiceManager implements ServiceManager {
     const scriptPath = process.argv[1];
     const cwd = process.cwd();
     const logDir = join(RUN_DIR, 'logs');
+    const path = process.env.PATH || '';
 
     return [
       '[Unit]',
@@ -129,6 +130,7 @@ export class SystemdServiceManager implements ServiceManager {
       `WorkingDirectory=${cwd}`,
       `StandardOutput=append:${join(logDir, 'service.log')}`,
       `StandardError=append:${join(logDir, 'service-error.log')}`,
+      `Environment=PATH=${path}`,
       'Environment=NODE_ENV=production',
       'TimeoutStopSec=30',
       '',
